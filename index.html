@@ -326,7 +326,7 @@
                 <!-- 250ml -->
                 <div class="group relative reveal hover:-translate-y-2 transition-transform duration-300">
                     <div class="absolute inset-0 bg-water-400 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    <div class="bg-white border border-water-100 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-center h-full flex flex-col items-center">
+                    <div class="relative z-10 bg-white border border-water-100 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-center h-full flex flex-col items-center">
                         <div class="h-48 flex items-end justify-center mb-6 w-full">
                             <!-- CSS Bottle Mockup -->
                             <div class="animate-float">
@@ -375,7 +375,7 @@
                 <!-- 1L -->
                 <div class="group relative reveal delay-200 hover:-translate-y-2 transition-transform duration-300">
                     <div class="absolute inset-0 bg-water-400 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                    <div class="bg-white border border-water-100 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-center h-full flex flex-col items-center">
+                    <div class="relative z-10 bg-white border border-water-100 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-center h-full flex flex-col items-center">
                         <div class="h-48 flex items-end justify-center mb-6 w-full">
                             <!-- CSS Bottle Mockup -->
                             <div class="animate-float">
@@ -462,18 +462,18 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Business Name</label>
-                            <input type="text" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="e.g. Prestige Motors">
+                            <input type="text" id="biz-name" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="e.g. Prestige Motors">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Contact Person</label>
-                            <input type="text" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="John Doe">
+                            <input type="text" id="contact-person" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="John Doe">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
-                            <input type="email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="john@company.com">
+                            <input type="email" id="contact-email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="john@company.com">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Interested Size</label>
@@ -488,12 +488,12 @@
 
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Estimated Quantity (Monthly)</label>
-                        <input type="number" min="100" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="e.g. 500">
+                        <input type="number" id="quantity" min="100" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="e.g. 500">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Message (Optional)</label>
-                        <textarea rows="3" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="Tell us about your label design ideas..."></textarea>
+                        <textarea id="message" rows="3" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="Tell us about your label design ideas..."></textarea>
                     </div>
 
                     <button type="submit" class="w-full bg-gradient-to-r from-water-600 to-water-500 text-white font-bold text-lg py-4 rounded-xl hover:shadow-lg hover:shadow-water-500/40 transition-all transform hover:-translate-y-1">
@@ -502,7 +502,7 @@
                 </form>
                 
                 <div id="success-msg" class="hidden mt-6 p-4 bg-green-50 text-green-700 rounded-lg text-center border border-green-200">
-                    <i class="fa-solid fa-check-circle mr-2"></i> Thank you! We will flow into your inbox shortly.
+                    <i class="fa-solid fa-check-circle mr-2"></i> Opening your email client to send the request...
                 </div>
             </div>
         </div>
@@ -536,12 +536,12 @@
                     <ul class="space-y-2 text-slate-400">
                         <li><i class="fa-solid fa-envelope mr-2"></i> c.ksharma6899@gmail.com</li>
                         <li><i class="fa-solid fa-phone mr-2"></i> +91 7011902824</li>
-                        <li><i class="fa-solid fa-location-dot mr-2"></i> Sector 56A, Faridabad, Haryana</li>
+                        <li><i class="fa-solid fa-location-dot mr-2"></i> Sector 56A, Faridabad (121004), Haryana</li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-slate-800 mt-12 pt-8 text-center text-slate-500 text-sm">
-                &copy; 2023 FLOW Inc. All rights reserved. Keep Hydrated.
+                &copy; 2025 FLOW Inc. All rights reserved. Keep Hydrated.
             </div>
         </div>
     </footer>
@@ -612,19 +612,53 @@
         // Form Handler
         function handleSubmit(e) {
             e.preventDefault();
+            
+            // --- CONFIGURATION ---
+            // REPLACE THIS with your actual email address to receive the quotes
+            const businessEmail = "c.ksharma6899@gmail.com"; 
+            // ---------------------
+
+            // Get values
+            const bizName = document.getElementById('biz-name').value;
+            const person = document.getElementById('contact-person').value;
+            const email = document.getElementById('contact-email').value;
+            const size = document.getElementById('size-select').value;
+            const quantity = document.getElementById('quantity').value;
+            const message = document.getElementById('message').value;
+            
+            // Construct Email Body
+            const subject = encodeURIComponent(`New Quote Request: ${bizName}`);
+            const body = encodeURIComponent(
+                `Hi FLOW Team,\n\nI would like to request a quote for my business.\n\n` +
+                `Business Name: ${bizName}\n` +
+                `Contact Person: ${person}\n` +
+                `Email: ${email}\n\n` +
+                `Order Details:\n` +
+                `- Bottle Size: ${size}\n` +
+                `- Estimated Quantity: ${quantity}\n\n` +
+                `Additional Message:\n${message}\n\n` +
+                `Regards,\n${person}`
+            );
+            
+            // Create mailto link with your business email
+            const mailtoLink = `mailto:${businessEmail}?subject=${subject}&body=${body}`;
+            
+            // Trigger UI feedback
             const btn = e.target.querySelector('button');
             const originalText = btn.innerText;
-            
-            btn.innerText = 'Sending...';
+            btn.innerText = 'Opening Email...';
             btn.classList.add('opacity-75');
             
-            // Simulate API call
+            // Open mail client
+            window.location.href = mailtoLink;
+            
+            // Reset UI
             setTimeout(() => {
                 btn.innerText = originalText;
                 btn.classList.remove('opacity-75');
                 document.getElementById('success-msg').classList.remove('hidden');
                 e.target.reset();
-            }, 1500);
+            }, 1000);
         }
 
         // Initialization
