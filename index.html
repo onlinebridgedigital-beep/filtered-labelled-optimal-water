@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLOW | Filtered Labelled Optimal Water</title>
+    <meta name="description" content="Custom labelled water bottles for businesses. Elevate your brand with FLOW.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        water: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'bubble': 'bubble 15s linear infinite',
+                        'wave': 'wave 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite',
+                        'wave-fast': 'wave 15s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        bubble: {
+                            '0%': { transform: 'translateY(100vh) scale(0)', opacity: '0' },
+                            '50%': { opacity: '0.6' },
+                            '100%': { transform: 'translateY(-100px) scale(1)', opacity: '0' },
+                        },
+                        wave: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles & Utilities */
+        body {
+            overflow-x: hidden;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .dark-glass {
+            background: rgba(12, 74, 110, 0.8);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Wave Container */
+        .ocean {
+            height: 5%;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background: #0ea5e9; /* Fallback */
+            background: transparent;
+            z-index: 1;
+        }
+
+        .wave {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 198'%3E%3Cpath fill='%23ffffff' d='M0,130 C300,160 500,80 800,100 C1100,120 1300,60 1600,130 L1600,200 L0,200 Z'/%3E%3C/svg%3E");
+            position: absolute;
+            top: -100px;
+            width: 200%;
+            height: 100px;
+            animation: wave 25s cubic-bezier 0.55 0.5 0.45 0.5 infinite;
+            transform: translate3d(0, 0, 0);
+            background-repeat: repeat-x;
+        }
+
+        .wave:nth-of-type(2) {
+            top: -75px;
+            animation: wave 20s cubic-bezier 0.55 0.5 0.45 0.5 infinite reverse;
+            opacity: 0.6;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 198'%3E%3Cpath fill='%23bae6fd' d='M0,130 C300,110 500,150 800,120 C1100,90 1300,150 1600,120 L1600,200 L0,200 Z'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+        }
+
+        /* Scroll Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Bubbles Background */
+        .bubbles-container {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(180deg, #e0f2fe 0%, #0ea5e9 100%);
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Bottle Shape CSS */
+        .bottle-shape {
+            clip-path: polygon(20% 0%, 80% 0%, 85% 15%, 85% 100%, 15% 100%, 15% 15%);
+        }
+        .bottle-neck {
+            width: 40px;
+            height: 20px;
+            background: #0284c7;
+            margin: 0 auto;
+            border-radius: 2px 2px 0 0;
+        }
+        .bottle-body {
+            width: 80px;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 10px 10px 20px 20px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .water-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 85%;
+            background: rgba(14, 165, 233, 0.5);
+            border-top: 1px solid rgba(255,255,255,0.4);
+        }
+        .label-area {
+            position: absolute;
+            top: 30%;
+            left: 5%;
+            width: 90%;
+            height: 40%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+    </style>
+</head>
+<body class="text-slate-700 antialiased selection:bg-water-300 selection:text-water-900">
+
+    <!-- Animated Background -->
+    <div class="bubbles-container" id="bubbles">
+        <!-- Bubbles injected via JS -->
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-8 h-8 rounded-full bg-water-500 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <span class="text-2xl font-bold font-serif text-slate-800 tracking-wider">FLOW</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#about" class="hover:text-water-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Concept</a>
+                        <a href="#products" class="hover:text-water-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Bottles</a>
+                        <a href="#clients" class="hover:text-water-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Sectors</a>
+                        <a href="#contact" class="bg-water-600 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-water-700 transition-all shadow-lg hover:shadow-water-400/50">Get Quote</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="inline-flex items-center justify-center p-2 rounded-md text-water-800 hover:text-water-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden glass bg-white/90 absolute w-full" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#about" class="text-gray-800 block px-3 py-2 rounded-md text-base font-medium">Concept</a>
+                <a href="#products" class="text-gray-800 block px-3 py-2 rounded-md text-base font-medium">Bottles</a>
+                <a href="#clients" class="text-gray-800 block px-3 py-2 rounded-md text-base font-medium">Sectors</a>
+                <a href="#contact" class="text-water-600 block px-3 py-2 rounded-md text-base font-bold">Get Quote</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="z-10 text-center px-4 max-w-4xl mx-auto mt-[-50px]">
+            <div class="mb-4 inline-block animate-float">
+                <i class="fa-solid fa-water text-6xl text-water-600 opacity-80"></i>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold text-slate-900 mb-6 font-serif leading-tight">
+                Your Brand,<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-water-600 to-water-400">Pure & Bottled.</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-slate-600 mb-10 font-light max-w-2xl mx-auto">
+                <span class="font-bold text-water-700">F</span>iltered <span class="font-bold text-water-700">L</span>abelled <span class="font-bold text-water-700">O</span>ptimal <span class="font-bold text-water-700">W</span>ater.
+                hydration that speaks your business language.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#products" class="px-8 py-4 bg-water-600 text-white rounded-full font-bold text-lg shadow-xl shadow-water-500/30 hover:bg-water-700 transition-all hover:-translate-y-1">
+                    View Bottles
+                </a>
+                <a href="#contact" class="px-8 py-4 bg-white text-water-700 border-2 border-water-200 rounded-full font-bold text-lg shadow-lg hover:border-water-500 transition-all hover:-translate-y-1">
+                    Partner With Us
+                </a>
+            </div>
+        </div>
+
+        <!-- Wave Divider at Bottom of Hero -->
+        <div class="absolute bottom-0 w-full">
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+    </header>
+
+    <!-- About / Concept Section -->
+    <section id="about" class="py-24 bg-white relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <h2 class="text-water-600 font-bold tracking-wide uppercase text-sm mb-2">The Concept</h2>
+                    <h3 class="text-4xl font-serif font-bold text-slate-900 mb-6">Hydration as a Marketing Channel</h3>
+                    <p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                        Every sip your customer takes is an opportunity to reinforce your brand. At <strong>FLOW</strong>, we don't just sell water; we sell a premium experience packaged in crystal-clear sustainability.
+                    </p>
+                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                        Whether it's a car showroom, a high-end restaurant, or a corporate boardroom, our custom-labelled bottles ensure your logo is always in hand.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check-circle text-water-500 text-xl"></i>
+                            <span class="text-slate-700">Triple-filtered alkaline water</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check-circle text-water-500 text-xl"></i>
+                            <span class="text-slate-700">HD waterproof custom labels</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check-circle text-water-500 text-xl"></i>
+                            <span class="text-slate-700">100% Recyclable BPA-free plastic</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="relative reveal delay-200 h-96 w-full flex items-center justify-center">
+                    <!-- Abstract Water Visual -->
+                    <div class="absolute w-72 h-72 bg-water-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float top-0 left-10"></div>
+                    <div class="absolute w-72 h-72 bg-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float-delayed bottom-0 right-10"></div>
+                    <div class="relative z-10 glass-card p-8 rounded-2xl shadow-2xl text-center border-t-4 border-water-500">
+                        <i class="fa-solid fa-bottle-water text-6xl text-water-600 mb-4"></i>
+                        <h4 class="text-2xl font-bold text-slate-800">Premium Quality</h4>
+                        <p class="text-slate-600 mt-2">Sourced from natural springs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-24 bg-gradient-to-b from-water-50 to-white relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-20 reveal">
+                <h2 class="text-4xl font-serif font-bold text-slate-900 mb-4">Choose Your Vessel</h2>
+                <p class="text-xl text-slate-600">Three perfect sizes tailored for different business needs. Fully customizable with your logo and brand colors.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 250ml -->
+                <div class="group relative reveal hover:-translate-y-2 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-water-400 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                    <div class="bg-white border border-water-100 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-center h-full flex flex-col items-center">
+                        <div class="h-48 flex items-end justify-center mb-6 w-full">
+                            <!-- CSS Bottle Mockup -->
+                            <div class="animate-float">
+                                <div class="bottle-neck"></div>
+                                <div class="bottle-body" style="height: 120px; width: 60px;">
+                                    <div class="water-fill" style="height: 90%;"></div>
+                                    <div class="label-area flex-col gap-1">
+                                        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-[8px]">LOGO</div>
+                                        <div class="h-1 w-8 bg-slate-200"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2">The Mini</h3>
+                        <p class="text-water-600 font-bold mb-4">250ml</p>
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">Perfect for waiting rooms, quick meetings, and welcome kits. A thoughtful gesture that fits in a pocket.</p>
+                        <button onclick="selectProduct('250ml')" class="w-full py-2 border-2 border-water-500 text-water-600 font-bold rounded-lg hover:bg-water-500 hover:text-white transition-colors">Select This</button>
+                    </div>
+                </div>
+
+                <!-- 500ml -->
+                <div class="group relative reveal delay-100 hover:-translate-y-2 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-water-400 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                    <div class="bg-white border-2 border-water-200 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all text-center h-full flex flex-col items-center transform scale-105 z-10">
+                        <div class="absolute top-0 right-0 bg-water-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">MOST POPULAR</div>
+                        <div class="h-48 flex items-end justify-center mb-6 w-full">
+                            <!-- CSS Bottle Mockup -->
+                            <div class="animate-float">
+                                <div class="bottle-neck"></div>
+                                <div class="bottle-body" style="height: 160px; width: 70px;">
+                                    <div class="water-fill" style="height: 85%;"></div>
+                                    <div class="label-area flex-col gap-2">
+                                        <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">LOGO</div>
+                                        <div class="h-1 w-10 bg-slate-200"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2">The Standard</h3>
+                        <p class="text-water-600 font-bold mb-4">500ml</p>
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">The universal choice for restaurants, cafes, and events. Standard hydration size with maximum label visibility.</p>
+                        <button onclick="selectProduct('500ml')" class="w-full py-2 bg-water-500 text-white font-bold rounded-lg hover:bg-water-600 transition-colors shadow-lg shadow-water-500/30">Select This</button>
+                    </div>
+                </div>
+
+                <!-- 1L -->
+                <div class="group relative reveal delay-200 hover:-translate-y-2 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-water-400 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                    <div class="bg-white border border-water-100 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all text-center h-full flex flex-col items-center">
+                        <div class="h-48 flex items-end justify-center mb-6 w-full">
+                            <!-- CSS Bottle Mockup -->
+                            <div class="animate-float">
+                                <div class="bottle-neck"></div>
+                                <div class="bottle-body" style="height: 180px; width: 85px;">
+                                    <div class="water-fill" style="height: 80%;"></div>
+                                    <div class="label-area flex-col gap-2">
+                                        <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">LOGO</div>
+                                        <div class="h-1 w-12 bg-slate-200"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2">The Executive</h3>
+                        <p class="text-water-600 font-bold mb-4">1 Litre</p>
+                        <p class="text-slate-600 text-sm mb-6 flex-grow">Designed for conference tables, VIP dining, and long-duration events. Impressive presence.</p>
+                        <button onclick="selectProduct('1L')" class="w-full py-2 border-2 border-water-500 text-water-600 font-bold rounded-lg hover:bg-water-500 hover:text-white transition-colors">Select This</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience / B2B Use Cases -->
+    <section id="clients" class="py-24 bg-water-900 text-white relative z-20 overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <div class="wave opacity-20"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-4xl font-serif font-bold mb-4">Hydrating Industries</h2>
+                <p class="text-water-200 text-lg">Trusted by businesses that value customer experience.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="dark-glass p-6 rounded-xl text-center hover:bg-water-800 transition-colors reveal">
+                    <div class="w-16 h-16 mx-auto bg-water-700 rounded-full flex items-center justify-center mb-4 text-2xl">
+                        <i class="fa-solid fa-car"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Showrooms</h3>
+                    <p class="text-sm text-water-100">Offer a refreshing welcome to potential buyers while they browse your vehicles.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="dark-glass p-6 rounded-xl text-center hover:bg-water-800 transition-colors reveal delay-100">
+                    <div class="w-16 h-16 mx-auto bg-water-700 rounded-full flex items-center justify-center mb-4 text-2xl">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Restaurants</h3>
+                    <p class="text-sm text-water-100">Elevate your table setting with branded sparkling or still water bottles.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="dark-glass p-6 rounded-xl text-center hover:bg-water-800 transition-colors reveal delay-200">
+                    <div class="w-16 h-16 mx-auto bg-water-700 rounded-full flex items-center justify-center mb-4 text-2xl">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Offices</h3>
+                    <p class="text-sm text-water-100">Impress clients in the boardroom and keep employees hydrated with style.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="dark-glass p-6 rounded-xl text-center hover:bg-water-800 transition-colors reveal delay-300">
+                    <div class="w-16 h-16 mx-auto bg-water-700 rounded-full flex items-center justify-center mb-4 text-2xl">
+                        <i class="fa-solid fa-hotel"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Hospitality</h3>
+                    <p class="text-sm text-water-100">A personal touch in every room. Welcome guests with your own brand.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section id="contact" class="py-24 relative z-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-card rounded-3xl p-8 md:p-12 shadow-2xl reveal">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-2">Flow With Us</h2>
+                    <p class="text-slate-600">Get a custom quote for your business. Minimum order quantity: 100 units.</p>
+                </div>
+
+                <form onsubmit="handleSubmit(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Business Name</label>
+                            <input type="text" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="e.g. Prestige Motors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Contact Person</label>
+                            <input type="text" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="John Doe">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                            <input type="email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="john@company.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Interested Size</label>
+                            <select id="size-select" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50">
+                                <option value="250ml">250ml (Mini)</option>
+                                <option value="500ml">500ml (Standard)</option>
+                                <option value="1L">1 Litre (Executive)</option>
+                                <option value="Mix">Mix of Sizes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Estimated Quantity (Monthly)</label>
+                        <input type="number" min="100" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="e.g. 500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Message (Optional)</label>
+                        <textarea rows="3" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-water-500 focus:border-water-500 outline-none transition-all bg-white/50" placeholder="Tell us about your label design ideas..."></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-water-600 to-water-500 text-white font-bold text-lg py-4 rounded-xl hover:shadow-lg hover:shadow-water-500/40 transition-all transform hover:-translate-y-1">
+                        Request Quote
+                    </button>
+                </form>
+                
+                <div id="success-msg" class="hidden mt-6 p-4 bg-green-50 text-green-700 rounded-lg text-center border border-green-200">
+                    <i class="fa-solid fa-check-circle mr-2"></i> Thank you! We will flow into your inbox shortly.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12 relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-water-500 flex items-center justify-center text-white font-bold">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <span class="text-2xl font-bold font-serif">FLOW</span>
+                    </div>
+                    <p class="text-slate-400 max-w-sm">
+                        Filtered Labelled Optimal Water. Helping businesses make a lasting impression, one bottle at a time.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4 text-water-400">Products</h4>
+                    <ul class="space-y-2 text-slate-400">
+                        <li><a href="#" class="hover:text-white transition-colors">250ml Mini</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">500ml Standard</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">1L Premium</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4 text-water-400">Contact</h4>
+                    <ul class="space-y-2 text-slate-400">
+                        <li><i class="fa-solid fa-envelope mr-2"></i> c.ksharma6899@gmail.com</li>
+                        <li><i class="fa-solid fa-phone mr-2"></i> +91 7011902824</li>
+                        <li><i class="fa-solid fa-location-dot mr-2"></i> Sector 56A, Faridabad, Haryana</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 mt-12 pt-8 text-center text-slate-500 text-sm">
+                &copy; 2023 FLOW Inc. All rights reserved. Keep Hydrated.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Bubble Generation Logic
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            const bubbleCount = 20;
+
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                
+                // Random size
+                const size = Math.random() * 60 + 20;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                
+                // Random position
+                bubble.style.left = `${Math.random() * 100}%`;
+                
+                // Random delay and duration
+                const duration = Math.random() * 10 + 10;
+                const delay = Math.random() * 10;
+                
+                bubble.style.animation = `bubble ${duration}s linear ${delay}s infinite`;
+                
+                container.appendChild(bubble);
+            }
+        }
+
+        // Scroll Reveal Logic
+        function reveal() {
+            const reveals = document.querySelectorAll(".reveal");
+            const windowHeight = window.innerHeight;
+            const elementVisible = 150;
+
+            for (let i = 0; i < reveals.length; i++) {
+                const elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+
+        // Navbar scroll effect
+        function handleScroll() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('glass');
+                navbar.classList.add('bg-white/80');
+                navbar.classList.add('shadow-md');
+            } else {
+                navbar.classList.remove('glass');
+                navbar.classList.remove('bg-white/80');
+                navbar.classList.remove('shadow-md');
+            }
+        }
+
+        // Product Selection Helper
+        function selectProduct(size) {
+            document.getElementById('size-select').value = size;
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Form Handler
+        function handleSubmit(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            
+            btn.innerText = 'Sending...';
+            btn.classList.add('opacity-75');
+            
+            // Simulate API call
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('opacity-75');
+                document.getElementById('success-msg').classList.remove('hidden');
+                e.target.reset();
+            }, 1500);
+        }
+
+        // Initialization
+        window.addEventListener('load', () => {
+            createBubbles();
+            reveal(); // Check initial position
+        });
+        window.addEventListener('scroll', () => {
+            reveal();
+            handleScroll();
+        });
+
+    </script>
+</body>
+</html>
